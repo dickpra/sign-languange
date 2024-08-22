@@ -15,10 +15,11 @@ import numpy as np
 def open_bisindo():
     main_window.withdraw()  # Menyembunyikan jendela utama
     try:
-        model_path = get_resource_path('model-video/model-bisindo-malang-vidio.p')
+        model_path = get_resource_path('model/model-bisindo-malang-vidio.p')
         model_dict = pickle.load(open(model_path, 'rb'))
         model = model_dict['model']
-        start_camera_loop(model)
+        judul = "Bisindo Malang Kalimat"
+        start_camera_loop(model, judul)
         # threading.Thread(target=start_camera_loop, args=(model,)).start()
     except Exception as e:
         print(f"Error in open_bisindo: {e}")
@@ -26,10 +27,11 @@ def open_bisindo():
 def open_sibi():
     main_window.withdraw()  # Menyembunyikan jendela utama
     try:
-        model_path = get_resource_path('model-video/model-sibi-kalimat-v1.p')
+        model_path = get_resource_path('model/model-sibi-kalimat-v1.p')
         model_dict = pickle.load(open(model_path, 'rb'))
         model = model_dict['model']
-        start_camera_loop(model)
+        judul = "SIBI Kalimat"
+        start_camera_loop(model, judul)
         # threading.Thread(target=start_camera_loop, args=(model,)).start()
         # threading.Thread(target=Translatetor).start()
     except Exception as e:
@@ -38,10 +40,11 @@ def open_sibi():
 def open_abjadsibi():
     main_window.withdraw()  # Menyembunyikan jendela utama
     try:
-        model_path = get_resource_path('model-video/modelabjadsibi.p')
+        model_path = get_resource_path('model/modelabjadsibi.p')
         model_dict = pickle.load(open(model_path, 'rb'))
         model = model_dict['model']
-        start_camera_loop(model)
+        judul = "SIBI Abjad"
+        start_camera_loop(model, judul)
         # threading.Thread(target=start_camera_loop, args=(model,)).start()
         # threading.Thread(target=Translatetor).start()
     except Exception as e:
@@ -50,10 +53,11 @@ def open_abjadsibi():
 def open_abjadmalang():
     main_window.withdraw()  # Menyembunyikan jendela utama
     try:
-        model_path = get_resource_path('model-video/model-abjad-malang.p')
+        model_path = get_resource_path('model/model-abjad-malang.p')
         model_dict = pickle.load(open(model_path, 'rb'))
         model = model_dict['model']
-        start_camera_loop(model)
+        judul = "Bisindo Malang Abjad"
+        start_camera_loop(model, judul)
         # threading.Thread(target=start_camera_loop, args=(model,)).start()
         # threading.Thread(target=Translatetor).start()
     except Exception as e:
@@ -71,7 +75,7 @@ def get_resource_path(relative_path):
 
 
 
-def start_camera_loop(model):
+def start_camera_loop(model, judul):
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
         print("Error: Kamera tidak dapat diakses")
@@ -92,7 +96,7 @@ def start_camera_loop(model):
         try:
             tts = gTTS(text=text, lang=lang)
             tts.save(get_resource_path("assets/output.mp3"))
-            os.system("afplay " + get_resource_path("assets/output.mp3"))
+            os.system("start " + get_resource_path("assets/output.mp3"))
         except Exception as e:
             print("Error in TTS:", e)
 
@@ -259,8 +263,36 @@ def start_camera_loop(model):
             draw.text((10, 10), instruction_text, font=font2, fill=(255, 255, 255))
 
             combined_sentence = ' '.join(sentence)
-            draw.text((10, 100), f"Hasil: {combined_sentence}", font=font, fill=(255, 255, 255))
-            draw.text((10, 280), f"Bahasa dipilih: {bahasa_dipilih}", font=font3, fill=(255, 255, 255))
+
+            languagese = {
+                "English": "en",
+                "Spanish": "es",
+                "French": "fr",
+                "German": "de",
+                "Japanese": "ja",
+                "Korean": "ko",
+                "Chinese": "zh-cn",
+                "Arabic": "ar",
+            }
+
+            # Misalkan variabel bahasa sudah didefinisikan
+            bahasa_kode = bahasa_dipilih  # Contoh kode bahasa
+
+            # Kondisi tertentu untuk mengubah kode bahasa
+            kondisi_tertentu = True  # Ganti dengan kondisi Anda
+
+            if kondisi_tertentu:
+                # Cari nama bahasa dari kode bahasa
+                bahasa_nama = [name for name, code in languagese.items() if code == bahasa_kode]
+                if bahasa_nama:
+                    bahasa_nama = bahasa_nama[0]  # Ambil nama bahasa pertama yang cocok
+                else:
+                    bahasa_nama = "Unknown"  # Jika kode tidak ditemukan
+            
+            draw.text((10, 50), f"{judul}", font=font, fill=(255, 255, 255))
+            draw.text((10, 100), f"Hasil:", font=font, fill=(255, 255, 255))
+            draw.text((10, 130), f"{combined_sentence}", font=font, fill=(0, 255, 0))
+            draw.text((10, 280), f"Languange Selected: {bahasa_nama}", font=font3, fill=(255, 255, 255))
             draw.text((10, 300), f"Translater: {translation_text}", font=font, fill=(255, 255, 255))
 
             result_frame = np.array(result_frame_pil)
@@ -271,7 +303,7 @@ def start_camera_loop(model):
 
             combined_frame = cv2.hconcat([frame, result_frame])
 
-            cv2.imshow('Kamera dan Hasil Isyarat', combined_frame)
+            cv2.imshow('Bahasa Isyarat', combined_frame)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 quit_application()
@@ -301,7 +333,7 @@ def create_main_window():
     bisindo_button = tk.Button(main_window, text="Bahasa Isyarat Bisindo Malang", command=open_bisindo, width=40, height=5, bg='lightblue', font=("Helvetica", 12))
     bisindo_button.pack(pady=20)
 
-    # Tombol untuk Bahasa Isyarat Abjad Bisindo Malang
+    # Tombol untuk Bahasa Isyarat SIBI Abjad
     sibi_button = tk.Button(main_window, text="Bahasa Isyarat Abjad Bisindo Malang", command=open_abjadmalang, width=40, height=5, bg='lightblue', font=("Helvetica", 12))
     sibi_button.pack(pady=20)
 
