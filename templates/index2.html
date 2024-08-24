@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hand Sign Recognition and Translation</title>
+</head>
+<body>
+    <h1>Hand Sign Recognition and Translation</h1>
+    <div>
+        <img src="{{ url_for('video_feed') }}" width="640" height="480">
+    </div>
+    <div>
+        <label for="predicted">Predicted Character:</label>
+        <span id="predicted"></span>
+    </div>
+    <div>
+        <label for="translated">Translated Text:</label>
+        <span id="translated"></span>
+    </div>
+    <div>
+        <label for="language">Select Language:</label>
+        <select id="language">
+            <option value="en">English</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+            <option value="es">Spanish</option>
+            <option value="zh-cn">Chinese</option>
+            <option value="ar">Arabic</option>
+        </select>
+        <button onclick="translateText()">Translate</button>
+    </div>
+
+    <script>
+        function translateText() {
+            const predicted = document.getElementById('predicted').innerText;
+            const language = document.getElementById('language').value;
+            fetch('/translate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text: predicted, lang: language }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('translated').innerText = 'Translation Error: ' + data.error;
+                } else {
+                    document.getElementById('translated').innerText = data.translated_text;
+                }
+            });
+        }
+    </script>
+</body>
+</html>

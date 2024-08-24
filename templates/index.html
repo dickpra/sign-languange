@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Language Translator</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+        button {
+            width: 200px;
+            padding: 15px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Select Sign Language</h1>
+    <button onclick="location.href='/bisindo_kalimat'">Bahasa Isyarat Bisindo Kalimat</button>
+    <button onclick="location.href='/bisindo_abjad'">Bahasa Isyarat Bisindo Abjad</button>
+    <button onclick="location.href='/sibi_kalimat'">SIBI Kalimat</button>
+    <button onclick="location.href='/sibi_abjad'">SIBI Abjad</button>
+    <button onclick="quitApp()">Quit</button>
+
+    <script>
+        function quitApp() {
+            fetch('/quit', { method: 'POST' })
+                .then(response => response.text())
+                .then(data => {
+                    console.log(data);
+                    window.close(); // Close browser window (might not work in all browsers)
+                });
+        }
+
+        function cleanup() {
+            fetch('/reset_all', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.status);
+            });
+        }
+
+        function resetPrediction() {
+            fetch('/reset_prediction', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'prediction reset') {
+                    document.getElementById('predicted').innerText = 'No Prediction';
+                    document.getElementById('translated').innerText = '';
+                }
+            });
+        }
+
+        window.addEventListener('beforeunload', function (e) {
+            cleanup();
+            resetPrediction();
+            e.returnValue = '';
+        });
+
+        window.addEventListener('pageshow', function (event) {
+            // Memanggil fungsi cleanup() saat halaman muncul kembali
+            resetPrediction();
+            cleanup();
+        });
+    </script>
+</body>
+</html>
